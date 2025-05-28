@@ -155,28 +155,4 @@
       resultFace.style.display = "block";
       // Animate: scale up result
       resultFace.animate([
-        {transform:'scale(0.1)'},
-        {transform:'scale(1.5)'},
-        {transform:'scale(1)'},
-      ], {
-        duration: 600,
-        easing: 'cubic-bezier(.42,2,.58,.8)'
-      });
-    }
-
-    // Click to relaunch
-    window.addEventListener('click', () => {
-      if (stopped) {
-        launchDie();
-      }
-    });
-
-    // Responsive
-    window.addEventListener('resize',()=>{
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
-</html>
+        {transform:'scale(0.1)
