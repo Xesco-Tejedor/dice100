@@ -18,8 +18,18 @@
             margin-top: 40px;
         }
         .dice {
-            font-size: 4em;
+            font-size: 5em;
             margin: 0.5em 0;
+            transition: transform 0.2s;
+        }
+        .rolling {
+            animation: jumpSpin 0.8s cubic-bezier(.26,.53,.74,1.48) infinite;
+        }
+        @keyframes jumpSpin {
+            0%   { transform: rotate(0deg) translateY(0);}
+            30%  { transform: rotate(120deg) translateY(-60px);}
+            60%  { transform: rotate(240deg) translateY(-40px);}
+            100% { transform: rotate(360deg) translateY(0);}
         }
         .roll-btn {
             padding: 0.6em 1.5em;
@@ -52,26 +62,20 @@
         function rollDice() {
             const min = 1;
             const max = 100;
-            const rollBtn = document.getElementById('rollBtn');
-            rollBtn.disabled = true;
-            document.getElementById('result').textContent = '';
             const diceElement = document.getElementById('dice');
-            let count = 0;
-            const shuffleTimes = 20; // número de veces que cambia el número
-            const shuffleInterval = 50; // ms entre cambios
-
-            const interval = setInterval(() => {
-                const tempRoll = Math.floor(Math.random() * (max - min + 1)) + min;
-                diceElement.textContent = tempRoll;
-                count++;
-                if (count >= shuffleTimes) {
-                    clearInterval(interval);
-                    const finalRoll = Math.floor(Math.random() * (max - min + 1)) + min;
-                    diceElement.textContent = finalRoll;
-                    document.getElementById('result').textContent = "Resultado: " + finalRoll;
-                    rollBtn.disabled = false;
-                }
-            }, shuffleInterval);
+            const rollBtn = document.getElementById('rollBtn');
+            const resultElement = document.getElementById('result');
+            rollBtn.disabled = true;
+            resultElement.textContent = '';
+            diceElement.textContent = "🎲";
+            diceElement.classList.add('rolling');
+            setTimeout(() => {
+                diceElement.classList.remove('rolling');
+                const finalRoll = Math.floor(Math.random() * (max - min + 1)) + min;
+                diceElement.textContent = finalRoll;
+                resultElement.textContent = "Resultado: " + finalRoll;
+                rollBtn.disabled = false;
+            }, 2000);
         }
     </script>
 </body>
