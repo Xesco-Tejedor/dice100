@@ -98,6 +98,9 @@
     // Overlay for result
     const resultFace = document.getElementById("resultFace");
 
+    // ---- DECLARAR stopped ANTES DE USARLO ----
+    let stopped = false;
+
     // "Launch" the die with random force & torque
     function launchDie() {
       d100Body.velocity.set(0,0,0);
@@ -124,7 +127,6 @@
     launchDie();
 
     // Animation loop
-    let stopped = false;
     function animate() {
       requestAnimationFrame(animate);
       world.step(1/60);
