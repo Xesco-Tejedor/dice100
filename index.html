@@ -45,16 +45,33 @@
     <div class="dice-container">
         <h1>Dice 100</h1>
         <div class="dice" id="dice">🎲</div>
-        <button class="roll-btn" onclick="rollDice()">Tirar dado</button>
+        <button class="roll-btn" onclick="rollDice()" id="rollBtn">Tirar dado</button>
         <div class="result" id="result"></div>
     </div>
     <script>
         function rollDice() {
             const min = 1;
             const max = 100;
-            const roll = Math.floor(Math.random() * (max - min + 1)) + min;
-            document.getElementById('result').textContent = "Resultado: " + roll;
-            document.getElementById('dice').textContent = "🎲";
+            const rollBtn = document.getElementById('rollBtn');
+            rollBtn.disabled = true;
+            document.getElementById('result').textContent = '';
+            const diceElement = document.getElementById('dice');
+            let count = 0;
+            const shuffleTimes = 20; // número de veces que cambia el número
+            const shuffleInterval = 50; // ms entre cambios
+
+            const interval = setInterval(() => {
+                const tempRoll = Math.floor(Math.random() * (max - min + 1)) + min;
+                diceElement.textContent = tempRoll;
+                count++;
+                if (count >= shuffleTimes) {
+                    clearInterval(interval);
+                    const finalRoll = Math.floor(Math.random() * (max - min + 1)) + min;
+                    diceElement.textContent = finalRoll;
+                    document.getElementById('result').textContent = "Resultado: " + finalRoll;
+                    rollBtn.disabled = false;
+                }
+            }, shuffleInterval);
         }
     </script>
 </body>
