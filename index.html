@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Dado D100 3D</title>
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { margin: 0; overflow: hidden; background: #202035; }
     #overlay {
       position: fixed;
       top:0; left:0; width:100vw; height:100vh;
@@ -35,16 +35,16 @@
 
     const renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x202035);
     document.body.appendChild(renderer.domElement);
 
     // Room (cube)
     const roomSize = 10;
-    const cube = new THREE.Mesh(
-      new THREE.BoxGeometry(roomSize, roomSize, roomSize),
-      new THREE.MeshBasicMaterial({color:0x404050, wireframe:true})
-    );
-    cube.position.y = roomSize/2;
-    scene.add(cube);
+    // Draw only the edges for visibility
+    const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(roomSize, roomSize, roomSize));
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x4040a0 }));
+    line.position.y = roomSize/2;
+    scene.add(line);
 
     // --- Cannon-es physics world ---
     const world = new CANNON.World({
@@ -53,24 +53,49 @@
 
     // Room walls (static)
     const half = roomSize/2;
-    for (let i=0; i<6; ++i) {
-      const plane = new CANNON.Body({mass:0});
-      switch(i){
-        case 0: plane.addShape(new CANNON.Plane()); plane.position.set(0, 0, half); break;      // back
-        case 1: plane.addShape(new CANNON.Plane()); plane.position.set(0, 0, -half); plane.quaternion.setFromEuler(0, Math.PI, 0); break; // front
-        case 2: plane.addShape(new CANNON.Plane()); plane.position.set(half, 0, 0); plane.quaternion.setFromEuler(0, -Math.PI/2, 0); break; // right
-        case 3: plane.addShape(new CANNON.Plane()); plane.position.set(-half, 0, 0); plane.quaternion.setFromEuler(0, Math.PI/2, 0); break; // left
-        case 4: plane.addShape(new CANNON.Plane()); plane.position.set(0, roomSize, 0); plane.quaternion.setFromEuler(-Math.PI/2, 0, 0); break; // top
-        case 5: plane.addShape(new CANNON.Plane()); plane.position.set(0, 0, 0); plane.quaternion.setFromEuler(Math.PI/2, 0, 0); break; // bottom
-      }
-      world.addBody(plane);
-    }
+    // Back
+    let plane = new CANNON.Body({mass:0});
+    plane.addShape(new CANNON.Plane());
+    plane.position.set(0, half, half);
+    world.addBody(plane);
+    // Front
+    plane = new CANNON.Body({mass:0});
+    plane.addShape(new CANNON.Plane());
+    plane.position.set(0, half, -half);
+    plane.quaternion.setFromEuler(0, Math.PI, 0);
+    world.addBody(plane);
+    // Right
+    plane = new CANNON.Body({mass:0});
+    plane.addShape(new CANNON.Plane());
+    plane.position.set(half, half, 0);
+    plane.quaternion.setFromEuler(0, -Math.PI/2, 0);
+    world.addBody(plane);
+    // Left
+    plane = new CANNON.Body({mass:0});
+    plane.addShape(new CANNON.Plane());
+    plane.position.set(-half, half, 0);
+    plane.quaternion.setFromEuler(0, Math.PI/2, 0);
+    world.addBody(plane);
+    // Top
+    plane = new CANNON.Body({mass:0});
+    plane.addShape(new CANNON.Plane());
+    plane.position.set(0, roomSize, 0);
+    plane.quaternion.setFromEuler(-Math.PI/2, 0, 0);
+    world.addBody(plane);
+    // Bottom
+    plane = new CANNON.Body({mass:0});
+    plane.addShape(new CANNON.Plane());
+    plane.position.set(0, 0, 0);
+    plane.quaternion.setFromEuler(Math.PI/2, 0, 0);
+    world.addBody(plane);
 
     // D100 (visual: sphere for now)
     const d100Radius = 1.2;
-    const geometry = new THREE.SphereGeometry(d100Radius, 32, 32);
+    const geometry = new THREE.SphereGeometry(d100Radius, 64, 64);
     const material = new THREE.MeshPhongMaterial({color: 0xb3e9ff, shininess:80});
     const d100 = new THREE.Mesh(geometry, material);
+    d100.castShadow = true;
+    d100.receiveShadow = true;
     scene.add(d100);
 
     // D100 physics
@@ -87,6 +112,9 @@
     const light = new THREE.PointLight(0xffffff, 2, 100);
     light.position.set(0, roomSize, 10);
     scene.add(light);
+
+    // Ambient light for softer shading
+    scene.add(new THREE.AmbientLight(0x666666, 0.6));
 
     // Overlay for result
     const overlay = document.getElementById("overlay");
@@ -110,6 +138,7 @@
         (Math.random()-0.5)*25
       );
       resultFace.style.display = "none";
+      stopped = false;
     }
 
     launchDie();
@@ -158,7 +187,6 @@
     // Click to relaunch
     window.addEventListener('click', () => {
       if (stopped) {
-        stopped = false;
         launchDie();
       }
     });
